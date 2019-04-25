@@ -1,18 +1,22 @@
 import random
 import os
 
+def create_cells(number):
+    cube = list(range(number))
+    cells = []
+    for row in cube:
+        for column in cube:
+            point = column, row
+            cells.append(point)
+    
+    return cells
 
-CELLS = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0),
-         (0, 1), (1, 1), (2, 1), (3, 1), (4, 1),
-         (0, 2), (1, 2), (2, 2), (3, 2), (4, 2),
-         (0, 3), (1, 3), (2, 3), (3, 3), (4, 3),
-         (0, 4), (1, 4), (2, 4), (3, 4), (4, 4)]
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def get_locations():
-    return random.sample(CELLS, 3)
+def get_locations(cells):
+    return random.sample(cells, 3)
 
 
 def move_player(player, move):
@@ -28,7 +32,7 @@ def move_player(player, move):
     return x, y
 
 
-def get_moves(player):
+def get_moves(player, limit):
     moves = {"A": "\u2b05", 
              "D": "\u27a1", 
              "W": "\u2b06",
@@ -37,21 +41,21 @@ def get_moves(player):
     
     if x == 0:
         moves.pop("A")
-    if x == 4:
+    if x == limit:
         moves.pop("D")
     if y == 0:
         moves.pop("W")
-    if y == 4:
+    if y == limit:
         moves.pop("S")
     
     return list(moves.values()), list(moves.keys())
 
-def draw_map(actor, simbol):
-    print(" -" * 5)
+def draw_map(cells, size, actor, simbol):
+    print("  -" * size)
     tile = "{}"
-    for cell in CELLS:
+    for cell in cells:
         x, y = cell
-        if x < 4:
+        if x < (size - 1):
             end_line = ""
             output = look_for_actor(actor, cell, tile, simbol)
         else:
@@ -59,13 +63,13 @@ def draw_map(actor, simbol):
             output = look_for_actor(actor, cell, tile, simbol)
 
         print(output, end = end_line)
-    print(" -" * 5)      
+    print("  -" * size)      
             
 def look_for_actor(actor, cell, tile, simbol):
     if cell == actor:
-        output = tile.format("{}".format(simbol))
+        output = tile.format(" {} ".format(simbol))
     else:
-        output = tile.format("\U0001F3E2")
+        output = tile.format(" \U0001F3E2 ")
         
     return output
 
@@ -83,12 +87,14 @@ def playing_again():
 
 
 def game_loop():
-    monster, door, player = get_locations()
+    size = 6
+    cells = create_cells(size)
+    monster, door, player = get_locations(cells)
     playing = True
     while playing:
         clear_screen()
-        draw_map(player, "\U0001f47e")
-        available_moves, controls = get_moves(player)
+        draw_map(cells, size, player, "\U0001f47e")
+        available_moves, controls = get_moves(player, size - 1)
         print("You're currently in room {}".format(player))
         print("You can move {}".format(", ".join(available_moves)))
         print("Enter QUIT to quit")
@@ -98,7 +104,7 @@ def game_loop():
         
         if move == 'QUIT':
             print(" \U0001F44B  See you next GAME!!  \U0001F44B")
-            break
+            return
             
         if move in controls:
             player = move_player(player, move)
@@ -108,13 +114,13 @@ def game_loop():
             
         if player == door:
             clear_screen()
-            draw_map(door, "\u2B50")
+            draw_map(cells, size, door, "\u2B50")
             print("\n  ** You WIN! **\n")
             playing = False
             
         if player == monster:
             clear_screen()
-            draw_map(monster, "\U0001f47b")
+            draw_map(cells, size, monster, "\U0001f47b")
             print("\n ** You LOSE! **\n")
             playing = False
     
@@ -125,4 +131,3 @@ print("Welcome to the dungeon!")
 print("Controls: \u2b06 (W), \u2b05 (A), \u2b07 (S), \u27a1 (D)")
 input("Press Enter to start!")
 game_loop()
-    
