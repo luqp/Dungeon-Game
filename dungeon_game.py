@@ -16,7 +16,7 @@ def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def get_locations(cells):
-    return random.sample(cells, 3)
+    return random.sample(cells, 5)
 
 
 def move_player(player, move):
@@ -84,12 +84,17 @@ def playing_again():
         
     game_loop()
 
+def find_monster(cells, size, monster, form):
+    clear_screen()
+    draw_map(cells, size, monster, form)
+    print("\n ** You LOSE! **\n")
+    return False
 
 
 def game_loop():
     size = 6
     cells = create_cells(size)
-    monster, door, player = get_locations(cells)
+    monster1, monster2, monster3, door, player = get_locations(cells)
     playing = True
     while playing:
         clear_screen()
@@ -118,15 +123,18 @@ def game_loop():
             print("\n  ** You WIN! **\n")
             playing = False
             
-        if player == monster:
-            clear_screen()
-            draw_map(cells, size, monster, "\U0001f47b")
-            print("\n ** You LOSE! **\n")
-            playing = False
+        if player == monster1:
+            playing = find_monster(cells, size, monster1, "\U0001F4A9")
+        
+        if player == monster2:
+            playing = find_monster(cells, size, monster2, "\U0001F47B")
+        
+        if player == monster3:
+            playing = find_monster(cells, size, monster3, "\U0001F47D")
     
     playing_again()
     
-    
+
 print("Welcome to the dungeon!")
 print("Controls: \u2b06 (W), \u2b05 (A), \u2b07 (S), \u27a1 (D)")
 input("Press Enter to start!")
